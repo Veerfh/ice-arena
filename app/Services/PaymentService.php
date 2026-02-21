@@ -23,6 +23,10 @@ class PaymentService
                 ],
                 'capture' => true,
                 'description' => $description,
+                'metadata' => [ // Добавляем метаданные для webhook
+                    'model_type' => get_class($model),
+                    'model_id' => $model->id
+                ]
             ];
 
             Log::info('Sending to YooKassa', $data);
@@ -56,9 +60,26 @@ class PaymentService
             
             Log::info('YooKassa response', ['payment' => $payment]);
 
-            // Сохраняем только ID платежа (без payment_status)
+            // Сохраняем информацию о платеже
             $model->payment_id = $payment->id;
+            
+            // ВНИМАНИЕ: Не устанавливаем is_paid = true сразу!
+            // Платеж может быть в статусе pending (ожидает подтверждения)
+            // is_paid станет true только после подтверждения платежа
+            $model->payment_status = $payment->status; // 'pending', 'succeeded', 'canceled'
+            
+            // Если статус уже succeeded (редко, но бывает)
+            if ($payment->status === 'succeeded') {
+                $model->is_paid = true;
+            }
+            
             $model->save();
+
+            Log::info('Payment saved', [
+                'payment_id' => $model->payment_id,
+                'status' => $model->payment_status,
+                'is_paid' => $model->is_paid
+            ]);
 
             return $payment;
 
