@@ -37,3 +37,14 @@ php artisan migrate --seed
 ```
 php artisan serve
 ```
+
+## Админ-панель
+
+Доступна по адресу http://localhost:8000/admin
+
+Данные для входа:
+
+```
+Логин: admin@mail.ru
+Пароль: 123456
+```
