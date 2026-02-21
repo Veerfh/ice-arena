@@ -30,14 +30,16 @@ class PaymentController extends Controller
                     'amount' => $requestBody['object']['amount'],
                 ], $requestBody['object']['id']);
 
-                $metadata = $requestBody['object']['metadata'];
-                $modelClass = $metadata['model_type'];
-                $model = $modelClass::find($metadata['model_id']);
-                
-                if ($model) {
-                    $model->is_paid = true;
-                    $model->payment_status = 'succeeded';
-                    $model->save();
+                $metadata = $requestBody['object']['metadata'] ?? [];
+                if (isset($metadata['model_type'], $metadata['model_id'])) {
+                    $modelClass = $metadata['model_type'];
+                    $model = $modelClass::find($metadata['model_id']);
+                    if ($model) {
+                        $model->is_paid = true;
+                        $model->payment_status = $requestBody['object']['status'];
+                        $model->save();
+                        Log::info("Payment succeeded for {$modelClass} #{$model->id}");
+                    }
                 }
             }
 

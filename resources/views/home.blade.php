@@ -143,97 +143,88 @@
     </div>
 
     <script>
-        $(document).ready(function() {
-            $('.phone-mask').inputmask('+7 (999) 999-99-99');
+    $(document).ready(function() {
+        $('.phone-mask').inputmask('+7 (999) 999-99-99');
 
-            $('#needSkates').change(function() {
-                if(this.checked) {
-                    $('#skatesSelection').show();
-                    updateTotal();
-                } else {
-                    $('#skatesSelection').hide();
-                    updateTotal();
-                }
-            });
-
-            $('select[name="hours"], select[name="skate_id"]').change(updateTotal);
-            
-            function updateTotal() {
-                let total = 300;
-                if($('#needSkates').is(':checked')) {
-                    let hours = parseInt($('select[name="hours"]').val()) || 1;
-                    total += 150 * hours;
-                }
-                $('#totalAmount').text('Итого: ' + total + ' ₽');
+        $('#needSkates').change(function() {
+            if(this.checked) {
+                $('#skatesSelection').show();
+                updateTotal();
+            } else {
+                $('#skatesSelection').hide();
+                updateTotal();
             }
-
-            $('#ticketForm').submit(function(e) {
-                e.preventDefault();
-                $.ajax({
-                    url: '{{ route("ticket.purchase") }}',
-                    method: 'POST',
-                    data: $(this).serialize(),
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    success: function(response) {
-                        window.location.href = response.payment_url;
-                    },
-                    error: function(xhr) {
-                        alert('Ошибка: ' + JSON.stringify(xhr.responseJSON.errors));
-                    }
-                });
-            });
-
-            $('#bookingForm').submit(function(e) {
-                e.preventDefault();
-                let formData = $(this).serialize();
-                
-                if(!$('#needSkates').is(':checked')) {
-                    formData = formData.replace(/&need_skates=on/, '');
-                }
-                
-                $.ajax({
-                    url: '{{ route("booking.create") }}',
-                    method: 'POST',
-                    data: formData,
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    success: function(response) {
-                        window.location.href = response.payment_url;
-                    },
-                    error: function(xhr) {
-                        alert('Ошибка: ' + JSON.stringify(xhr.responseJSON.errors));
-                    }
-                });
-            });
         });
 
-        function openTicketModal() {
-            document.getElementById('ticketModal').style.display = 'block';
-        }
-
-        function closeTicketModal() {
-            document.getElementById('ticketModal').style.display = 'none';
-        }
-
-        function openBookingModal() {
-            document.getElementById('bookingModal').style.display = 'block';
-        }
-
-        function closeBookingModal() {
-            document.getElementById('bookingModal').style.display = 'none';
-        }
-
-        window.onclick = function(event) {
-            if (event.target == document.getElementById('ticketModal')) {
-                closeTicketModal();
+        $('select[name="hours"], select[name="skate_id"]').change(updateTotal);
+        
+        function updateTotal() {
+            let total = 300;
+            if($('#needSkates').is(':checked')) {
+                let hours = parseInt($('select[name="hours"]').val()) || 1;
+                total += 150 * hours;
             }
-            if (event.target == document.getElementById('bookingModal')) {
-                closeBookingModal();
-            }
+            $('#totalAmount').text('Итого: ' + total + ' ₽');
         }
-    </script>
+
+        $('#ticketForm, #bookingForm').submit(function(e) {
+            e.preventDefault();
+            
+            $('.phone-mask').inputmask('remove');
+            
+            let formData = new FormData(this);
+            
+            formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
+            
+            if ($(this).is('#bookingForm') && !$('#needSkates').is(':checked')) {
+                formData.delete('need_skates');
+            }
+            
+            $.ajax({
+                url: $(this).is('#ticketForm') ? '{{ route("ticket.purchase") }}' : '{{ route("booking.create") }}',
+                method: 'POST',
+                data: formData,
+                processData: false,  // КРИТИЧНО!
+                contentType: false,  // КРИТИЧНО!
+                success: function(response) {
+                    $('.phone-mask').inputmask('+7 (999) 999-99-99'); // Восстанавливаем маски
+                    window.location.href = response.payment_url;
+                },
+                error: function(xhr) {
+                    $('.phone-mask').inputmask('+7 (999) 999-99-99'); // Восстанавливаем маски
+                    console.log('Full error:', xhr.responseText);
+                    let errorMsg = xhr.responseJSON?.errors || xhr.responseJSON?.error || 'Серверная ошибка';
+                    alert('Ошибка: ' + JSON.stringify(errorMsg));
+                }
+            });
+        });
+    });
+
+    function openTicketModal() {
+        document.getElementById('ticketModal').style.display = 'block';
+    }
+
+    function closeTicketModal() {
+        document.getElementById('ticketModal').style.display = 'none';
+    }
+
+    function openBookingModal() {
+        document.getElementById('bookingModal').style.display = 'block';
+    }
+
+    function closeBookingModal() {
+        document.getElementById('bookingModal').style.display = 'none';
+    }
+
+    window.onclick = function(event) {
+        if (event.target == document.getElementById('ticketModal')) {
+            closeTicketModal();
+        }
+        if (event.target == document.getElementById('bookingModal')) {
+            closeBookingModal();
+        }
+    }
+</script>
+
 </body>
 </html>
