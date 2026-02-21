@@ -5,34 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ледовый каток</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link rel="stylesheet" href='{{ asset('css/style.css') }}'/>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.8/jquery.inputmask.min.js"></script>
 </head>
 <body>
-    <!-- Шапка сайта -->
     <header>
         <div class="logo">
-            <h1>Ice Arena</h1>
+            <h1>Ледовая Арена</h1>
         </div>
         <nav>
             <ul>
-                <li><a href="#about">О нас</a></li>
                 <li><a href="#prices">Цены</a></li>
                 <li><a href="#skates">Коньки</a></li>
-                <li><a href="#contacts">Контакты</a></li>
             </ul>
         </nav>
         <button class="btn-ticket" onclick="openTicketModal()">Купить билет</button>
     </header>
 
     <main>
-        <!-- Главный баннер -->
         <section class="hero">
-            <h2>Добро пожаловать на ледовый каток!</h2>
-            <p>Лучшее место для активного отдыха всей семьей</p>
+            <h2>ЛЕДОВАЯ АРЕНА</h2>
+            <p>- лучшее место для активного отдыха всей семьей</p>
         </section>
 
-        <!-- Секция с ценами -->
         <section id="prices">
             <h3>Наши цены</h3>
             <div class="price-cards">
@@ -49,7 +45,10 @@
             </div>
         </section>
 
-        <!-- Секция с коньками -->
+        <section class="booking-section">
+            <button class="btn-booking" onclick="openBookingModal()">Забронировать коньки</button>
+        </section>
+
         <section id="skates">
             <h3>Доступные коньки</h3>
             <div class="skates-grid">
@@ -62,14 +61,8 @@
                 @endforeach
             </div>
         </section>
-
-        <!-- Кнопка бронирования -->
-        <section class="booking-section">
-            <button class="btn-booking" onclick="openBookingModal()">Забронировать коньки</button>
-        </section>
     </main>
 
-    <!-- Модальное окно для покупки билета -->
     <div id="ticketModal" style="display: none;">
         <div class="modal-content">
             <span class="close" onclick="closeTicketModal()">&times;</span>
@@ -77,23 +70,22 @@
             <form id="ticketForm">
                 <div>
                     <label>ФИО:</label>
-                    <input type="text" name="full_name" required>
+                    <input type="text" name="full_name" placeholder="Введите ФИО" required>
                 </div>
                 <div>
                     <label>Email:</label>
-                    <input type="email" name="email" required>
+                    <input type="email" name="email" placeholder="Введите email" required>
                 </div>
                 <div>
                     <label>Телефон:</label>
-                    <input type="text" name="phone" class="phone-mask" required>
+                    <input type="text" name="phone" class="phone-mask" placeholder="+7 (999) 999-99-99" required>
                 </div>
-                <p>Сумма к оплате: 300 ₽</p>
+                <p id="totalAmount">Сумма к оплате: 300 ₽</p>
                 <button type="submit">Оплатить</button>
             </form>
         </div>
     </div>
 
-    <!-- Модальное окно для бронирования -->
     <div id="bookingModal" style="display: none;">
         <div class="modal-content">
             <span class="close" onclick="closeBookingModal()">&times;</span>
@@ -101,11 +93,11 @@
             <form id="bookingForm">
                 <div>
                     <label>ФИО:</label>
-                    <input type="text" name="full_name" required>
+                    <input type="text" name="full_name" placeholder="Введите ФИО" required>
                 </div>
                 <div>
                     <label>Телефон:</label>
-                    <input type="text" name="phone" class="phone-mask" required>
+                    <input type="text" name="phone" class="phone-mask" placeholder="+7 (999) 999-99-99" required>
                 </div>
                 <div>
                     <label>Количество часов:</label>
@@ -133,7 +125,7 @@
                     </div>
                     <div>
                         <label>Размер:</label>
-                        <input type="number" name="skate_size" id="skateSize" min="30" max="47">
+                        <input type="number" name="skate_size" id="skateSize" min="26" max="47">
                     </div>
                 </div>
                 <p id="totalAmount">Итого: 300 ₽</p>
