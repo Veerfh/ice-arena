@@ -9,6 +9,10 @@ use MoonShine\ColorManager\Palettes\PurplePalette;
 use MoonShine\ColorManager\ColorManager;
 use MoonShine\Contracts\ColorManager\ColorManagerContract;
 use MoonShine\Contracts\ColorManager\PaletteContract;
+use App\MoonShine\Resources\Skate\SkateResource;
+use MoonShine\MenuManager\MenuItem;
+use App\MoonShine\Resources\Ticket\TicketResource;
+use App\MoonShine\Resources\Booking\BookingResource;
 
 final class MoonShineLayout extends AppLayout
 {
@@ -28,6 +32,9 @@ final class MoonShineLayout extends AppLayout
     {
         return [
             ...parent::menu(),
+            MenuItem::make(SkateResource::class, 'Коньки'),
+            MenuItem::make(TicketResource::class, 'Билеты'),
+            MenuItem::make(BookingResource::class, 'Бронь коньков'),
         ];
     }
 
@@ -37,7 +44,5 @@ final class MoonShineLayout extends AppLayout
     protected function colors(ColorManagerContract $colorManager): void
     {
         parent::colors($colorManager);
-
-        // $colorManager->primary('#00000');
     }
 }
