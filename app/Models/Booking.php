@@ -4,9 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 class Booking extends Model
 {
+    protected $table = 'bookings';
+    
     protected $fillable = [
         'full_name',
         'phone',
@@ -20,12 +23,20 @@ class Booking extends Model
     ];
 
     protected $casts = [
-        'is_paid' => 'boolean'
+        'is_paid' => 'boolean',
+        'hours' => 'integer',
+        'skate_size' => 'integer',
+        'total_amount' => 'integer'
     ];
 
     public function skate(): BelongsTo
     {
         return $this->belongsTo(Skate::class);
+    }
+
+    public function access(): MorphOne
+    {
+        return $this->morphOne(Access::class, 'accessible');
     }
 
     public function calculateTotal(): int
@@ -37,5 +48,19 @@ class Booking extends Model
         }
         
         return $total;
+    }
+
+    public function createAccess(): ?Access
+    {
+        if (!$this->is_paid) {
+            return null;
+        }
+
+        return $this->access()->create([
+            'access_code' => Access::generateCode(),
+            'valid_from' => now(),
+            'valid_until' => now()->addHours($this->hours),
+            'is_used' => false
+        ]);
     }
 }
